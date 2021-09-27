@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class PlayerServiceImpl implements PlayerService {
@@ -28,5 +29,15 @@ public class PlayerServiceImpl implements PlayerService {
     public List<Player> getAll(Pageable pageable) {
         Page<Player> page = playerRepository.findAll(pageable);
         return page.getContent();
+    }
+
+    @Override
+    public int getCountFindPlayers() {
+        return playerRepository.getCountFindPlayers();
+    }
+
+    @Override
+    public List<Player> getPlayersWithFilterAndPaging(Map<String, String> allRequestParams) {
+        return playerRepository.getPlayersWithFilterAndPaging(allRequestParams);
     }
 }
