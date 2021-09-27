@@ -2,17 +2,14 @@ package com.game.controller;
 
 import com.game.entity.Player;
 import com.game.service.PlayerService;
-import com.game.service.impl.PlayerServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/rest/players")
@@ -25,14 +22,13 @@ public class PlayerController {
     }
 
     @GetMapping("")
-    public List<Player> index(@RequestParam(name = "pageNumber", defaultValue = "0") int pageNumber,
-                              @RequestParam(name = "pageSize", defaultValue = "3") int pageSize,
-                              @RequestParam(name = "order", defaultValue = "ID") String order) {
-        return playerService.getAll(PageRequest.of(pageNumber, pageSize, Sort.by(PlayerOrder.valueOf(order).getFieldName())));
+    public List<Player> index(@RequestParam Map<String, String> allRequestParams) {
+//        return playerService.getAll(PageRequest.of(pageNumber, pageSize, Sort.by(PlayerOrder.valueOf(order).getFieldName())));
+        return playerService.getPlayersWithFilterAndPaging(allRequestParams);
     }
 
     @GetMapping("/count")
     public Integer count() {
-        return playerService.getAll().size();
+        return playerService.getCountFindPlayers();
     }
 }
