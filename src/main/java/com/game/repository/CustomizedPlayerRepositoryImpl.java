@@ -2,7 +2,6 @@ package com.game.repository;
 
 import com.game.controller.PlayerOrder;
 import com.game.entity.Player;
-import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
