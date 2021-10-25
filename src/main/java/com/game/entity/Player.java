@@ -8,6 +8,7 @@ import java.util.Date;
 @NamedQuery(name = "Player.getAll", query = "SELECT p FROM Player p")
 public class Player {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="id")
     private long id;
 

@@ -23,7 +23,6 @@ public class PlayerController {
 
     @GetMapping("")
     public List<Player> index(@RequestParam Map<String, String> allRequestParams) {
-//        return playerService.getAll(PageRequest.of(pageNumber, pageSize, Sort.by(PlayerOrder.valueOf(order).getFieldName())));
         return playerService.getPlayersWithFilterAndPaging(allRequestParams);
     }
 

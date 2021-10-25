@@ -2,141 +2,97 @@ package com.game.repository;
 
 import com.game.controller.PlayerOrder;
 import com.game.entity.Player;
+import com.game.entity.Profession;
+import com.game.entity.Race;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import java.sql.Date;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 public class CustomizedPlayerRepositoryImpl implements CustomizedPlayerRepository<Player> {
     @PersistenceContext
     private EntityManager em;
-    private int playersFound = 0;
 
     @Override
     public List<Player> getPlayersWithFilter(Map<String, String> allRequestParams) {
         String order = allRequestParams.remove("order");
         order = order == null ? "id" : PlayerOrder.valueOf(order).getFieldName();
-        StringBuilder sb = new StringBuilder();
-        sb.append("from Player");
-        if (!allRequestParams.isEmpty()) {
-            sb.append(" where");
-            if (allRequestParams.containsKey("name")) {
-                sb.append(" lower(name) like '%");
-                sb.append(allRequestParams.get("name").toLowerCase());
-                sb.append("%'");
-            }
-            if (allRequestParams.containsKey("title")) {
-                if (!String.valueOf(sb).endsWith(" where")) {
-                    sb.append(" and");
-                }
-                sb.append(" lower(title) like '%");
-                sb.append(allRequestParams.get("title").toLowerCase());
-                sb.append("%'");
-            }
-            if (allRequestParams.containsKey("race")) {
-                if (!String.valueOf(sb).endsWith(" where")) {
-                    sb.append(" and");
-                }
-                sb.append(" lower(race) = '");
-                sb.append(allRequestParams.get("race").toLowerCase());
-                sb.append("'");
-            }
-            if (allRequestParams.containsKey("profession")) {
-                if (!String.valueOf(sb).endsWith(" where")) {
-                    sb.append(" and");
-                }
-                sb.append(" lower(profession) = '");
-                sb.append(allRequestParams.get("profession").toLowerCase());
-                sb.append("'");
-            }
-            if (allRequestParams.containsKey("after")) {
-                if (!String.valueOf(sb).endsWith(" where")) {
-                    sb.append(" and");
-                }
-                sb.append(" birthday >= '");
-                sb.append(new Date(Long.parseLong(allRequestParams.get("after"))));
-                sb.append("'");
-            }
-            if (allRequestParams.containsKey("before")) {
-                if (!String.valueOf(sb).endsWith(" where")) {
-                    sb.append(" and");
-                }
-                sb.append(" birthday <= '");
-                sb.append(new Date(Long.parseLong(allRequestParams.get("before"))));
-                sb.append("'");
-            }
-            if (allRequestParams.containsKey("banned")) {
-                if (!String.valueOf(sb).endsWith(" where")) {
-                    sb.append(" and");
-                }
-                boolean isBanned = Boolean.parseBoolean(allRequestParams.get("banned"));
-                if (isBanned) {
-                    sb.append(" banned = true");
-                } else {
-                    sb.append(" banned = false");
-                }
-            }
-            if (allRequestParams.containsKey("minExperience")) {
-                if (!String.valueOf(sb).endsWith(" where")) {
-                    sb.append(" and");
-                }
-                sb.append(" experience >= ");
-                sb.append(Integer.parseInt(allRequestParams.get("minExperience")));
-            }
-            if (allRequestParams.containsKey("maxExperience")) {
-                if (!String.valueOf(sb).endsWith(" where")) {
-                    sb.append(" and");
-                }
-                sb.append(" experience <= ");
-                sb.append(Integer.parseInt(allRequestParams.get("maxExperience")));
-            }
-            if (allRequestParams.containsKey("minLevel")) {
-                if (!String.valueOf(sb).endsWith(" where")) {
-                    sb.append(" and");
-                }
-                sb.append(" level >= ");
-                sb.append(Integer.parseInt(allRequestParams.get("minLevel")));
-            }
-            if (allRequestParams.containsKey("maxLevel")) {
-                if (!String.valueOf(sb).endsWith(" where")) {
-                    sb.append(" and");
-                }
-                sb.append(" level <= ");
-                sb.append(Integer.parseInt(allRequestParams.get("maxLevel")));
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Player> playerCriteria = cb.createQuery(Player.class);
+        Root<Player> playerRoot = playerCriteria.from(Player.class);
+        List<Predicate> predicateList = new ArrayList<>();
+
+        String name = allRequestParams.get("name");
+        if (name != null && name.length() > 0) {
+            predicateList.add(cb.like(playerRoot.get("name"), "%" + name + "%"));
+        }
+
+        String title = allRequestParams.get("title");
+        if (title != null && title.length() > 0) {
+            predicateList.add(cb.like(playerRoot.get("title"), "%" + title + "%"));
+        }
+
+        String race = allRequestParams.get("race");
+        if (race != null && race.length() > 0) {
+            predicateList.add(cb.equal(playerRoot.get("race"), Race.valueOf(race.toUpperCase())));
+        }
+
+        String profession = allRequestParams.get("profession");
+        if (profession != null && profession.length() > 0) {
+            predicateList.add(cb.equal(playerRoot.get("profession"), Profession.valueOf(profession.toUpperCase())));
+        }
+
+        String after = allRequestParams.get("after");
+        if (after != null && after.length() > 0) {
+            predicateList.add(cb.greaterThanOrEqualTo(playerRoot.get("birthday"), new Date(Long.parseLong(after))));
+        }
+
+        String before = allRequestParams.get("before");
+        if (before != null && before.length() > 0) {
+            predicateList.add(cb.lessThanOrEqualTo(playerRoot.get("birthday"), new Date(Long.parseLong(before))));
+        }
+
+        String banned = allRequestParams.get("banned");
+        if (banned != null && banned.length() > 0) {
+            if (banned.equals("false")) {
+                predicateList.add(cb.equal(playerRoot.get("banned"), false));
+            } else {
+                predicateList.add(cb.equal(playerRoot.get("banned"), true));
             }
         }
-        sb.append(" order by ");
-        sb.append(order);
-        String query = String.valueOf(sb);
-        List<Player> players = em.createQuery(query, Player.class).getResultList();
-        playersFound = players.size();
-        return players;
-    }
 
-    @Override
-    public int getCountFindPlayers() {
-        return playersFound;
-    }
-
-    @Override
-    public List<Player> getPlayersWithFilterAndPaging(Map<String, String> allRequestParams) {
-//        allRequestParams.forEach((k, v) -> System.out.println(k + " : " + v));
-//        System.out.println("");
-
-        String pageNumber = allRequestParams.remove("pageNumber");
-        int pageNum = pageNumber == null ? 0 : Integer.parseInt(pageNumber);
-        String pageSize = allRequestParams.remove("pageSize");
-        int pageSizeInt = pageSize == null ? 3 : Integer.parseInt(pageSize);
-        List<Player> players = getPlayersWithFilter(allRequestParams);
-        int startIndex = pageNum * pageSizeInt;
-        int endIndex = Math.min((pageNum + 1) * pageSizeInt, playersFound);
-        List<Player> resultPlayers = new ArrayList<>();
-        for (int i = startIndex; i < endIndex; i++) {
-            resultPlayers.add(players.get(i));
+        String minExperience = allRequestParams.get("minExperience");
+        if (minExperience != null && minExperience.length() > 0) {
+            predicateList.add(cb.greaterThanOrEqualTo(playerRoot.get("experience"), Integer.parseInt(minExperience)));
         }
-        return resultPlayers;
+
+        String maxExperience = allRequestParams.get("maxExperience");
+        if (maxExperience != null && maxExperience.length() > 0) {
+            predicateList.add(cb.lessThanOrEqualTo(playerRoot.get("experience"), Integer.parseInt(maxExperience)));
+        }
+
+        String minLevel = allRequestParams.get("minLevel");
+        if (minLevel != null && minLevel.length() > 0) {
+            predicateList.add(cb.greaterThanOrEqualTo(playerRoot.get("level"), Integer.parseInt(minLevel)));
+        }
+
+        String maxLevel = allRequestParams.get("maxLevel");
+        if (maxLevel != null && maxLevel.length() > 0) {
+            predicateList.add(cb.lessThanOrEqualTo(playerRoot.get("level"), Integer.parseInt(maxLevel)));
+        }
+
+        Predicate[] predicates = predicateList.toArray(new Predicate[0]);
+        playerCriteria.select(playerRoot).where(predicates).orderBy(cb.asc(playerRoot.get(order)));
+
+        List<Player> list = em.createQuery(playerCriteria)
+                .getResultList();
+        return list;
     }
 }
