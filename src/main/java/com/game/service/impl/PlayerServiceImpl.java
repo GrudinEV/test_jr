@@ -35,8 +35,9 @@ public class PlayerServiceImpl implements PlayerService {
     }
 
     @Override
-    public int getCountFindPlayers() {
-        return playersFound;
+    public int getCountFindPlayers(Map<String, String> allRequestParams) {
+
+        return playerRepository.getPlayersWithFilter(allRequestParams).size();
     }
 
     @Override
@@ -111,8 +112,8 @@ public class PlayerServiceImpl implements PlayerService {
         if (params.get("experience") != null) {
             int exp = Integer.parseInt(params.get("experience"));
             player.setExperience(exp);
-            player.setLevel(calculateLevel(exp));
-            player.setUntilNextLevel(exp);
+            player.setLevel(calculateLevel(player.getExperience()));
+            player.setUntilNextLevel(calculateExpUntilNextLvl(player.getExperience()));
         }
         return playerRepository.save(player);
     }

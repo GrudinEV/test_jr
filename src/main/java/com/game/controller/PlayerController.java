@@ -30,8 +30,8 @@ public class PlayerController {
     }
 
     @GetMapping("/count")
-    public Integer count() {
-        return playerService.getCountFindPlayers();
+    public Integer count(@RequestParam Map<String, String> allRequestParams) {
+        return playerService.getCountFindPlayers(allRequestParams);
     }
 
     @GetMapping("/{id}")
@@ -50,7 +50,8 @@ public class PlayerController {
 
     @PostMapping("")
     public Player create(@Validated @RequestBody PlayerCreate playerCreate, HttpServletResponse response) {
-        if (playerCreate.getName().length() == 0
+        if (playerCreate.getName() == null
+                || playerCreate.getName().length() == 0
                 || playerCreate.getName().length() > 12
                 || playerCreate.getTitle().length() == 0
                 || playerCreate.getTitle().length() > 30
@@ -68,6 +69,10 @@ public class PlayerController {
     @PostMapping("/{id}")
     public Player update(@Validated @PathVariable("id") long id,
                          @Validated @RequestBody Map<String, String> params, HttpServletResponse response) {
+        if (id < 1) {
+            response.setStatus(HttpStatus.BAD_REQUEST.value());
+            return null;
+        }
         if (params.get("name") != null
                 && (params.get("name").length() == 0
                 || params.get("name").length() > 12)) {
