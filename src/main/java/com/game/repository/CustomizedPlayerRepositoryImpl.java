@@ -31,12 +31,12 @@ public class CustomizedPlayerRepositoryImpl implements CustomizedPlayerRepositor
 
         String name = allRequestParams.get("name");
         if (name != null && name.length() > 0) {
-            predicateList.add(cb.like(playerRoot.get("name"), "%" + name + "%"));
+            predicateList.add(cb.like(cb.lower(playerRoot.get("name")), "%" + name.toLowerCase() + "%"));
         }
 
         String title = allRequestParams.get("title");
         if (title != null && title.length() > 0) {
-            predicateList.add(cb.like(playerRoot.get("title"), "%" + title + "%"));
+            predicateList.add(cb.like(cb.lower(playerRoot.get("title")), "%" + title.toLowerCase() + "%"));
         }
 
         String race = allRequestParams.get("race");

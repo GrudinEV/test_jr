@@ -11,7 +11,7 @@ public interface PlayerService {
     List<Player> getAll();
     List<Player> getAll(Pageable pageable);
 
-    int getCountFindPlayers();
+    int getCountFindPlayers(Map<String, String> allRequestParams);
 
     List<Player> getPlayersWithFilterAndPaging(Map<String, String> allRequestParams);
 
