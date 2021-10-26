@@ -47,8 +47,8 @@ public class AppConfig {
     @Bean
     public DataSource dataSource() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setDriverClassName(Objects.requireNonNull(env.getProperty("database.driver")));
-        dataSource.setUrl(env.getProperty("database.url"));
+//        dataSource.setDriverClassName(Objects.requireNonNull(env.getProperty("database.driver")));
+        dataSource.setUrl(env.getProperty("database.bd"));
         dataSource.setUsername(env.getProperty("database.username"));
         dataSource.setPassword(env.getProperty("database.password"));
         return dataSource;
