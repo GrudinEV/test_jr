@@ -12,10 +12,10 @@ public class Player {
     @Column(name="id")
     private long id;
 
-    @Column(name="name")
+    @Column(name="name", length = 12)
     private String name;
 
-    @Column(name="title")
+    @Column(name="title", length = 30)
     private String title;
 
     @Column(name="race")
